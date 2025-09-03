@@ -38,26 +38,35 @@ def auto_select_course(driver):
         print("[日志] 已点击刷新列表")
         time.sleep(1)
 
-        # 检查“详细介绍”按钮是否变为“选择”或“选课”
-        control_td = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//tr[contains(@ng-repeat,'course in vm.data.coursePageList')]/td[@class='td-control']"))
-        )
-        # 查找“选择”或“选课”按钮
+        # 检查“报名课程”按钮是否出现
         try:
-            select_btn = control_td.find_element(By.XPATH, ".//a[contains(text(),'选择') or contains(text(),'选课')]")
-            select_btn.click()
-            print("[日志] 已点击选课按钮")
+            signup_btn = WebDriverWait(driver, 3).until(
+                EC.element_to_be_clickable((By.XPATH, "//a[contains(@class,'text-success') and contains(.,'报名课程')]"))
+            )
+            signup_btn.click()
+            print("[日志] 已点击报名课程按钮")
             time.sleep(1)
+
+            # 等待弹窗出现并点击“确定”
+            confirm_btn = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[@class='modal-dialog ']//button[contains(@class,'btn-primary') and contains(text(),'确定')]"))
+            )
+            confirm_btn.click()
+            print("[日志] 已点击弹窗确定按钮")
+            time.sleep(1)
+
             # 检查是否变为“退选”
             try:
-                cancel_btn = control_td.find_element(By.XPATH, ".//a[contains(text(),'退选')]")
+                cancel_btn = WebDriverWait(driver, 3).until(
+                    EC.presence_of_element_located((By.XPATH, "//a[contains(text(),'退选')]"))
+                )
                 print("[日志] 选课成功，已变为退选")
                 break
             except:
                 print("[日志] 选课未成功，继续刷新列表")
                 continue
         except:
-            print("[日志] 未检测到选课按钮，继续刷新列表")
+            print("[日志] 未检测到报名课程按钮，继续刷新列表")
             continue
 
 def BoyaSelect(driver):
@@ -78,11 +87,18 @@ def BoyaSelect(driver):
     search_box = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, "//input[@st-search='courseName']"))
     )
-    # 让用户输入课程名称
     course_name = input("请输入要检索的课程名称：")
     search_box.clear()
     search_box.send_keys(course_name)
     search_box.send_keys(u'\ue007')  # 发送回车键
+
+    # 点击刷新列表，确保数据最新
+    refresh_btn = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(@class,'btn-warning') and contains(.,'刷新列表')]"))
+    )
+    refresh_btn.click()
+    print("[日志] 已点击刷新列表")
+    time.sleep(1)
 
     # 自动选课流程
     auto_select_course(driver)
