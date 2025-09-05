@@ -22,16 +22,29 @@ def auto_select_course(driver):
 
     # 转换为时间对象
     start_time = datetime.datetime.strptime(start_time_str, "%Y-%m-%d %H:%M")
-    # 获取北京时间
     beijing_tz = pytz.timezone('Asia/Shanghai')
     now = datetime.datetime.now(beijing_tz)
     wait_seconds = (start_time - now).total_seconds()
-    if wait_seconds > 0:
-        print(f"[日志] 距离选课开始还有 {wait_seconds:.2f} 秒，等待中...")
-        time.sleep(wait_seconds)
-    else:
-        print("[日志] 已到选课时间，准备选课...")
 
+    # 等待期间定时刷新
+    refresh_interval = 30  # 每30秒刷新一次
+    while wait_seconds > 0:
+        print(f"[日志] 距离选课开始还有 {wait_seconds:.2f} 秒，等待中...（定时刷新列表）")
+        try:
+            refresh_btn = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//a[contains(@class,'btn-warning') and contains(.,'刷新列表')]"))
+            )
+            refresh_btn.click()
+            print("[日志] 等待期间已点击刷新列表")
+        except Exception as e:
+            print(f"[日志] 刷新列表按钮未找到：{e}")
+        time.sleep(refresh_interval)
+        now = datetime.datetime.now(beijing_tz)
+        wait_seconds = (start_time - now).total_seconds()
+
+    print("[日志] 已到选课时间，准备选课...")
+
+    # 后续选课逻辑保持不变
     while True:
         # 点击刷新列表
         refresh_btn = WebDriverWait(driver, 10).until(
