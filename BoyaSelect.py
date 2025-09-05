@@ -44,7 +44,7 @@ def auto_select_course(driver):
         wait_seconds = (start_time - now).total_seconds()
 
     print("[日志] 已到选课时间，准备选课...")
-
+    time.sleep(0.1)  # 确保时间到达后稍作等待
     # 后续选课逻辑保持不变
     while True:
         # 点击刷新列表
