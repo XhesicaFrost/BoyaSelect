@@ -8,6 +8,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import time
 import os
 from login import login
+import pytz
 
 def auto_select_course(driver):
     import datetime
@@ -21,7 +22,9 @@ def auto_select_course(driver):
 
     # 转换为时间对象
     start_time = datetime.datetime.strptime(start_time_str, "%Y-%m-%d %H:%M")
-    now = datetime.datetime.now()
+    # 获取北京时间
+    beijing_tz = pytz.timezone('Asia/Shanghai')
+    now = datetime.datetime.now(beijing_tz)
     wait_seconds = (start_time - now).total_seconds()
     if wait_seconds > 0:
         print(f"[日志] 距离选课开始还有 {wait_seconds:.2f} 秒，等待中...")
