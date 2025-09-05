@@ -9,10 +9,9 @@ import time
 import os
 from login import login
 import pytz
+import datetime
 
 def auto_select_course(driver):
-    import datetime
-
     # 获取结果第一条课程的选课开始时间
     first_row = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, "//tr[contains(@ng-repeat,'course in vm.data.coursePageList')]"))
@@ -23,6 +22,8 @@ def auto_select_course(driver):
     # 转换为时间对象
     start_time = datetime.datetime.strptime(start_time_str, "%Y-%m-%d %H:%M")
     beijing_tz = pytz.timezone('Asia/Shanghai')
+    # 给 start_time 加上时区
+    start_time = beijing_tz.localize(start_time)
     now = datetime.datetime.now(beijing_tz)
     wait_seconds = (start_time - now).total_seconds()
 
